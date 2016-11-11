@@ -9,20 +9,36 @@ import org.woehlke.javaee7.petclinic.entities.Pet;
 import org.woehlke.javaee7.petclinic.entities.PetType;
 import org.woehlke.javaee7.petclinic.entities.Visit;
 import org.woehlke.javaee7.petclinic.services.OwnerService;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Created with IntelliJ IDEA.
- * User: tw
- * Date: 06.01.14
- * Time: 16:24
- * To change this template use File | Settings | File Templates.
+ * Created with IntelliJ IDEA. User: tw Date: 06.01.14 Time: 16:24 To change
+ * this template use File | Settings | File Templates.
  */
 @ManagedBean
 @SessionScoped
@@ -57,6 +73,61 @@ public class OwnerController implements Serializable {
 
     private Visit visit;
     private int scrollerPage;
+
+    private static final String APPLICATION_NAME
+            = "PET Clinic";
+
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(
+            System.getProperty("user.home"), ".credentials/2/calendar-java-petclinic");
+
+    private static FileDataStoreFactory DATA_STORE_FACTORY;
+
+    private static final JsonFactory JSON_FACTORY
+            = JacksonFactory.getDefaultInstance();
+
+    private static HttpTransport HTTP_TRANSPORT;
+
+    private static final List<String> SCOPES
+            = Arrays.asList(CalendarScopes.CALENDAR);
+
+    static {
+        try {
+            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    public static Credential authorize() throws IOException {
+
+        InputStream in
+                = OwnerController.class.getResourceAsStream("/client_secret.json");
+        GoogleClientSecrets clientSecrets
+                = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        GoogleAuthorizationCodeFlow flow
+                = new GoogleAuthorizationCodeFlow.Builder(
+                        HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                        .setDataStoreFactory(DATA_STORE_FACTORY)
+                        .setAccessType("offline")
+                        .build();
+        Credential credential = new AuthorizationCodeInstalledApp(
+                flow, new LocalServerReceiver()).authorize("user");
+        System.out.println(
+                "Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
+        return credential;
+    }
+
+    public static com.google.api.services.calendar.Calendar
+            getCalendarService() throws IOException {
+        Credential credential = authorize();
+        return new com.google.api.services.calendar.Calendar.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, credential)
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+    }
 
     public Visit getVisit() {
         return visit;
@@ -106,61 +177,61 @@ public class OwnerController implements Serializable {
         this.searchterm = searchterm;
     }
 
-    public String search(){
-        if(searchterm==null || searchterm.isEmpty()){
+    public String search() {
+        if (searchterm == null || searchterm.isEmpty()) {
             this.ownerList = ownerDao.getAll();
         } else {
             try {
                 this.ownerList = ownerDao.search(searchterm);
-            } catch (Exception e){
+            } catch (Exception e) {
                 this.ownerList = ownerDao.getAll();
             }
         }
         return "owners.jsf";
     }
 
-    public String getNewOwnerForm(){
+    public String getNewOwnerForm() {
         this.owner = new Owner();
         return "newOwner.jsf";
     }
 
-    public String saveNewOwner(){
+    public String saveNewOwner() {
         ownerDao.addNew(this.owner);
         this.ownerList = ownerDao.getAll();
         return "owners.jsf";
     }
 
-    public String showOwner(long id){
+    public String showOwner(long id) {
         this.owner = ownerDao.findById(id);
         return "showOwner.jsf";
     }
 
-    public String getEditForm(){
+    public String getEditForm() {
         return "editOwner.jsf";
     }
 
-    public String saveEditedOwner(){
+    public String saveEditedOwner() {
         ownerDao.update(this.owner);
         this.ownerList = ownerDao.getAll();
         return "showOwner.jsf";
     }
 
-    public String delete(long id){
+    public String delete(long id) {
         ownerDao.delete(id);
         this.ownerList = ownerDao.getAll();
         return "owners.jsf";
     }
 
-    public String getAddNewPetForm(){
+    public String getAddNewPetForm() {
         this.pet = new Pet();
         return "addNewPet.jsf";
     }
 
-    public List<PetType> getAllPetTypes(){
+    public List<PetType> getAllPetTypes() {
         return petTypeDao.getAll();
     }
 
-    public String addNewPet(){
+    public String addNewPet() {
         PetType petType = petTypeDao.findById(this.petTypeId);
         this.pet.setType(petType);
         this.owner.addPet(this.pet);
@@ -169,13 +240,13 @@ public class OwnerController implements Serializable {
         return "showOwner.jsf";
     }
 
-    public String editPetForm(long petId){
+    public String editPetForm(long petId) {
         this.pet = petDao.findById(petId);
         this.petTypeId = this.pet.getType().getId();
         return "editPet.jsf";
     }
 
-    public String saveEditedPet(){
+    public String saveEditedPet() {
         PetType petType = petTypeDao.findById(this.petTypeId);
         this.pet.setType(petType);
         petDao.update(this.pet);
@@ -184,21 +255,55 @@ public class OwnerController implements Serializable {
         return "showOwner.jsf";
     }
 
-    public String addVisitToPetForm(long petId){
+    public String addVisitToPetForm(long petId) {
         this.pet = petDao.findById(petId);
         this.petTypeId = this.pet.getType().getId();
         this.visit = new Visit();
         return "addVisitToPet.jsf";
+
     }
 
-    public String saveVisit(){
+    public String saveVisit() throws IOException {
         this.visit.setPet(this.pet);
         this.pet.addVisit(this.visit);
         ownerService.addNewVisit(this.visit);
         log.info("owner1: " + this.owner.toString());
         long ownerId = this.owner.getId();
         this.owner = this.ownerDao.findById(ownerId);
-        log.info("owner2: "+this.owner.toString());
+        log.info("owner2: " + this.owner.toString());
+        com.google.api.services.calendar.Calendar service
+                = getCalendarService();
+        Event event = new Event()
+                .setSummary("Consulta PET Clinic")
+                .setLocation("Av. Ipiranga, 6681 - Partenon, Porto Alegre - RS")
+                .setDescription(this.visit.getDescription());
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        DateTime startDateTime = new DateTime(df.format(this.visit.getDate()) + "T09:00:00-01:00");
+        EventDateTime start = new EventDateTime()
+                .setDateTime(startDateTime)
+                .setTimeZone("America/Sao_Paulo");
+        event.setStart(start);
+        DateTime endDateTime = new DateTime(df.format(this.visit.getDate()) + "T17:00:00-07:00");
+        EventDateTime end = new EventDateTime()
+                .setDateTime(endDateTime)
+                .setTimeZone("America/Sao_Paulo");
+        event.setEnd(end);
+
+        EventAttendee[] attendees = new EventAttendee[]{
+            new EventAttendee().setEmail("guilherme.ojs@gmail.com"),};
+        event.setAttendees(Arrays.asList(attendees));
+
+        EventReminder[] reminderOverrides = new EventReminder[]{
+            new EventReminder().setMethod("email").setMinutes(24 * 60),
+            new EventReminder().setMethod("popup").setMinutes(10),};
+        Event.Reminders reminders = new Event.Reminders()
+                .setUseDefault(false)
+                .setOverrides(Arrays.asList(reminderOverrides));
+        event.setReminders(reminders);
+
+        String calendarId = "primary";
+        event = service.events().insert(calendarId, event).execute();
+        System.out.println("Event created: %s\n" + event.getHtmlLink());
         return "showOwner.jsf";
     }
 
