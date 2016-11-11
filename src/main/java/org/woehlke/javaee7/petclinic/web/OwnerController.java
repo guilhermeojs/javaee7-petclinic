@@ -9,6 +9,15 @@ import org.woehlke.javaee7.petclinic.entities.Pet;
 import org.woehlke.javaee7.petclinic.entities.PetType;
 import org.woehlke.javaee7.petclinic.entities.Visit;
 import org.woehlke.javaee7.petclinic.services.OwnerService;
+import com.google.maps.*;
+import com.google.maps.model.GeocodingResult;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.List;
+import org.apache.commons.io.IOUtils; //(For this you need to add "commons-io-1.3.1.jar" in your project.)
+
 
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
@@ -50,6 +59,8 @@ public class OwnerController implements Serializable {
     private List<Owner> ownerList;
 
     private Owner owner;
+    
+    private List<String> adressList;  
 
     private Pet pet;
 
@@ -58,6 +69,7 @@ public class OwnerController implements Serializable {
     private Visit visit;
     private int scrollerPage;
 
+    
     public Visit getVisit() {
         return visit;
     }
@@ -106,7 +118,7 @@ public class OwnerController implements Serializable {
         this.searchterm = searchterm;
     }
 
-    public String search(){
+    public String search() throws Exception{
         if(searchterm==null || searchterm.isEmpty()){
             this.ownerList = ownerDao.getAll();
         } else {
@@ -116,13 +128,34 @@ public class OwnerController implements Serializable {
                 this.ownerList = ownerDao.getAll();
             }
         }
-        return "owners.jsf";
+        
+        
+     //delete   
+     GeoCoding.addressReturn();
+     
+     //não funciona (pq?)
+     // this.ownerList = ownerDao.getAll();
+     // for (Owner all : ownerList) {
+     //   adressList.add(all.getAddress());
+     //     }
+     //   System.out.println(adressList.get(0));
+            
+     //funciona
+    
+     return "owners.jsf";
     }
-
+    
+    
+    public void getAddressCoords() {
+  
+    }
+ 
+    
     public String getNewOwnerForm(){
         this.owner = new Owner();
         return "newOwner.jsf";
     }
+    
 
     public String saveNewOwner(){
         ownerDao.addNew(this.owner);
@@ -199,6 +232,8 @@ public class OwnerController implements Serializable {
         long ownerId = this.owner.getId();
         this.owner = this.ownerDao.findById(ownerId);
         log.info("owner2: "+this.owner.toString());
+        
+     
         return "showOwner.jsf";
     }
 
@@ -209,4 +244,10 @@ public class OwnerController implements Serializable {
     public int getScrollerPage() {
         return scrollerPage;
     }
+    
+    
+    //geocoding api test
+    
+
 }
+

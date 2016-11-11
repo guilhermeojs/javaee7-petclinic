@@ -153,7 +153,16 @@
             <artifactId>jboss-servlet-api_3.1_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.google.maps</groupId>
+            <artifactId>google-maps-services</artifactId>
+            <version>0.1.16</version>
+        </dependency>
+        <dependency>
+            <groupId>org.primefaces</groupId>
+            <artifactId>primefaces</artifactId>
+            <version>6.0</version>
+        </dependency>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
@@ -242,6 +251,8 @@
             <artifactId>bootstrap</artifactId>
             <version>${webjars-bootstrap.version}</version>
         </dependency>
+        
+        
 
         <dependency>
             <groupId>commons-logging</groupId>
@@ -397,6 +408,8 @@
             <version>${version.selenium}</version>
             <scope>test</scope>
         </dependency>
+        
+ 
 
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
