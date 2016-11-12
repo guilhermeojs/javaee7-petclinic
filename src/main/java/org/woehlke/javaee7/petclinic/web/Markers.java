@@ -5,6 +5,9 @@
  */
 package org.woehlke.javaee7.petclinic.web;
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -16,6 +19,8 @@ import org.primefaces.model.map.MapModel;
 import org.primefaces.model.map.Marker;
 import org.woehlke.javaee7.petclinic.dao.OwnerDao;
 import org.woehlke.javaee7.petclinic.entities.Owner;
+import org.woehlke.javaee7.petclinic.entities.Visit;
+import org.woehlke.javaee7.petclinic.dao.VisitDao;
 
 /**
  *
@@ -28,6 +33,9 @@ public class Markers implements Serializable {
     
     @EJB
     private OwnerDao ownerDao;
+    
+    @EJB 
+    private VisitDao visitDao;
    
     private MapModel simpleModel;
   
@@ -35,19 +43,21 @@ public class Markers implements Serializable {
     public void init()  {
         simpleModel = new DefaultMapModel();
         LatLng aux;  
+        List<Visit> visitList;
+        visitList = visitDao.getAll();
+        Date date = new Date();
         
-
-        //Shared coordinates
-        //LatLng coord1 = new LatLng(36.879466, 30.667648);
-        //Basic marker
-        //simpleModel.addOverlay(new Marker(coord1, "Konyaalti"));
+             
         
-        List<Owner> ownerList = ownerDao.getAll();
-        for (Owner owner:ownerList) {
-            double[]resultado = Conversor.stringGeocode(owner.getAddress());
-            aux = new LatLng (resultado[0],resultado[1]);
-            simpleModel.addOverlay(new Marker(aux,owner.getFirstName()));
+        
+        for (Visit visit : visitList) {
+               //adicionar if
+                Owner owner = visit.getPet().getOwner();
+                double[]resultado = Conversor.stringGeocode(owner.getAddress());
+                aux = new LatLng (resultado[0],resultado[1]);
+                simpleModel.addOverlay(new Marker(aux,owner.getFirstName()));        
         }
+        
     }
   
     public MapModel getSimpleModel() {
