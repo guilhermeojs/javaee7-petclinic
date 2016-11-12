@@ -11,7 +11,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.faces.bean.ManagedBean;
+import javax.faces.application.FacesMessage;
+import javax.inject.Named;
+import javax.faces.view.ViewScoped;
+import javax.faces.context.FacesContext;
+import org.primefaces.event.map.OverlaySelectEvent;
  
 import org.primefaces.model.map.DefaultMapModel;
 import org.primefaces.model.map.LatLng;
@@ -28,7 +32,8 @@ import org.woehlke.javaee7.petclinic.dao.VisitDao;
  */
    
 
-@ManagedBean
+@ViewScoped
+@Named
 public class Markers implements Serializable {
     
     @EJB
@@ -38,6 +43,8 @@ public class Markers implements Serializable {
     private VisitDao visitDao;
    
     private MapModel simpleModel;
+    
+    private Marker marker;
   
     @PostConstruct
     public void init()  {
@@ -64,4 +71,15 @@ public class Markers implements Serializable {
         return simpleModel;
     }
     
+     public void onMarkerSelect(OverlaySelectEvent event) {
+        marker = (Marker) event.getOverlay();
+        marker.setVisible(false);
+        
+        
+ }
+     
+     
+    public Marker getMarker() {
+        return marker;
+    }
 }

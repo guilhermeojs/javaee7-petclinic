@@ -199,9 +199,7 @@ public class OwnerController implements Serializable {
                 this.ownerList = ownerDao.getAll();
             }
         }
-        double[] resultado = Conversor.stringGeocode(ownerList.get(0).getAddress());
-        System.out.println("test");
-        System.out.println(resultado[0]+","+resultado[1]);
+
     
      return "owners.jsf";
     }
