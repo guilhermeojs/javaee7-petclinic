@@ -199,19 +199,15 @@ public class OwnerController implements Serializable {
                 this.ownerList = ownerDao.getAll();
             }
         }
-        
-
+        double[] resultado = Conversor.stringGeocode(ownerList.get(0).getAddress());
+        System.out.println("test");
+        System.out.println(resultado[0]+","+resultado[1]);
     
      return "owners.jsf";
     }
     
     
-    public void getAddressCoords() {
-  
-    }
- 
-    
-      public String getNewOwnerForm(){
+    public String getNewOwnerForm(){
         this.owner = new Owner();
         return "newOwner.jsf";
     }
@@ -311,6 +307,8 @@ public class OwnerController implements Serializable {
     
     
     //geocoding api test
+    
+
     
 
 }
