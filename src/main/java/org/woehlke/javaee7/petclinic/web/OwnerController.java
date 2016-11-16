@@ -26,6 +26,15 @@ import com.google.api.services.calendar.model.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import com.google.maps.*;
+import com.google.maps.model.GeocodingResult;
+import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.List;
+import org.apache.commons.io.IOUtils; //(For this you need to add "commons-io-1.3.1.jar" in your project.)
+
 
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
@@ -66,6 +75,8 @@ public class OwnerController implements Serializable {
     private List<Owner> ownerList;
 
     private Owner owner;
+    
+    private List<String> adressList;  
 
     private Pet pet;
 
@@ -129,6 +140,8 @@ public class OwnerController implements Serializable {
                 .build();
     }
 
+
+    
     public Visit getVisit() {
         return visit;
     }
@@ -177,8 +190,8 @@ public class OwnerController implements Serializable {
         this.searchterm = searchterm;
     }
 
-    public String search() {
-        if (searchterm == null || searchterm.isEmpty()) {
+    public String search() throws Exception{
+        if(searchterm==null || searchterm.isEmpty()){
             this.ownerList = ownerDao.getAll();
         } else {
             try {
@@ -194,6 +207,7 @@ public class OwnerController implements Serializable {
         this.owner = new Owner();
         return "newOwner.jsf";
     }
+    
 
     public String saveNewOwner() {
         ownerDao.addNew(this.owner);
@@ -306,7 +320,8 @@ public class OwnerController implements Serializable {
         System.out.println("Event created: %s\n" + event.getHtmlLink());
         return "showOwner.jsf";
     }
-
+   
+ 
     public void setScrollerPage(int scrollerPage) {
         this.scrollerPage = scrollerPage;
     }
@@ -314,4 +329,12 @@ public class OwnerController implements Serializable {
     public int getScrollerPage() {
         return scrollerPage;
     }
+    
+    
+    //geocoding api test
+    
+
+    
+
 }
+

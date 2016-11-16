@@ -1,11 +1,13 @@
 package org.woehlke.javaee7.petclinic.dao;
 
+import java.util.List;
 import org.woehlke.javaee7.petclinic.entities.Visit;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.logging.Logger;
+import javax.persistence.TypedQuery;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,4 +34,13 @@ public class VisitDaoImpl implements VisitDao {
     public void update(Visit visit) {
         visit= entityManager.merge(visit);
     }
+    
+    @Override
+    public List<Visit> getAll() {
+        TypedQuery<Visit> q = entityManager.createQuery("select o from Visit o order by o.pet", Visit.class);
+        List<Visit> list =  q.getResultList();
+        return list;
+    }
+    
+
 }

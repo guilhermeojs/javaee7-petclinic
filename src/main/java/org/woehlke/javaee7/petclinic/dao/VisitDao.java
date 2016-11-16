@@ -1,6 +1,8 @@
 package org.woehlke.javaee7.petclinic.dao;
 
 import org.woehlke.javaee7.petclinic.entities.Visit;
+import java.util.List;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,4 +16,8 @@ public interface VisitDao {
     void addNew(Visit visit);
 
     void update(Visit visit);
+    
+    List<Visit> getAll ();
+
+   
 }

@@ -69,5 +69,6 @@ public class NewVisitPage {
         this.visitDescription.sendKeys(description);
         this.visitDate.setDate(dateTime);
         Graphene.guardHttp(save).click();
+        
     }
 }
