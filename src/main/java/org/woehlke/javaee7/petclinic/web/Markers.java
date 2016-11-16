@@ -4,7 +4,9 @@
  * and open the template in the editor.
  */
 package org.woehlke.javaee7.petclinic.web;
+import com.google.api.client.util.DateTime;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -58,11 +60,16 @@ public class Markers implements Serializable {
         
         
         for (Visit visit : visitList) {
-               //adicionar if
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                Date hoje = new Date();
+                
+                if(df.format(visit.getDate()).equals(df.format(hoje))){
                 Owner owner = visit.getPet().getOwner();
-                double[]resultado = Conversor.stringGeocode(owner.getAddress());
+                String endereco = owner.getAddress()+", "+owner.getCity();
+                double[]resultado = Conversor.stringGeocode(endereco);
                 aux = new LatLng (resultado[0],resultado[1]);
                 simpleModel.addOverlay(new Marker(aux,owner.getFirstName()));        
+           }
         }
         
     }
