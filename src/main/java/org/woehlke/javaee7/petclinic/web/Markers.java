@@ -27,6 +27,7 @@ import org.woehlke.javaee7.petclinic.dao.OwnerDao;
 import org.woehlke.javaee7.petclinic.entities.Owner;
 import org.woehlke.javaee7.petclinic.entities.Visit;
 import org.woehlke.javaee7.petclinic.dao.VisitDao;
+import org.woehlke.javaee7.petclinic.dao.VisitDaoImpl;
 
 /**
  *
@@ -47,28 +48,35 @@ public class Markers implements Serializable {
     private MapModel simpleModel;
     
     private Marker marker;
+    
+    private List<Visit> visitList;
+    
+    
   
     @PostConstruct
     public void init()  {
         simpleModel = new DefaultMapModel();
         LatLng aux;  
-        List<Visit> visitList;
-        visitList = visitDao.getAll();
-        Date date = new Date();
+       
+        this.visitList = visitDao.getAll();
+        Date hoje = new Date();
         
              
         
         
         for (Visit visit : visitList) {
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                Date hoje = new Date();
                 
-                if(df.format(visit.getDate()).equals(df.format(hoje))){
+                
+                if((df.format(visit.getDate()).equals(df.format(hoje)))){
+                if (!visit.getDescription().contains("Busca concluída as ")) {
                 Owner owner = visit.getPet().getOwner();
                 String endereco = owner.getAddress()+", "+owner.getCity();
                 double[]resultado = Conversor.stringGeocode(endereco);
                 aux = new LatLng (resultado[0],resultado[1]);
-                simpleModel.addOverlay(new Marker(aux,owner.getFirstName()));        
+                simpleModel.addOverlay(new Marker(aux,visit.getPet().getName()));
+                    }
+                
            }
         }
         
@@ -81,6 +89,19 @@ public class Markers implements Serializable {
      public void onMarkerSelect(OverlaySelectEvent event) {
         marker = (Marker) event.getOverlay();
         marker.setVisible(false);
+        this.visitList = visitDao.getAll();
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+          
+        for (Visit visit : visitList) {
+          if (visit.getPet().getName().equals(marker.getTitle())) {
+                Date hora = Calendar.getInstance().getTime(); 
+                String dataFormatada = df.format(hora);
+                visit.setDescription("Busca concluída as "+dataFormatada);
+                visitDao.update(visit);
+                
+            }
+        }
+        
         
         
  }

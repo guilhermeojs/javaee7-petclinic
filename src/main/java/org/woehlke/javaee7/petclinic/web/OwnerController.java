@@ -293,8 +293,6 @@ public class OwnerController implements Serializable {
     }
    
  
-    
-  
     public void setScrollerPage(int scrollerPage) {
         this.scrollerPage = scrollerPage;
     }

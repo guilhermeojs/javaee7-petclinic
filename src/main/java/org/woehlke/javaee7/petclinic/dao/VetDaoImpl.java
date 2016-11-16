@@ -51,6 +51,8 @@ public class VetDaoImpl implements VetDao {
         Vet vet = entityManager.find(Vet.class, id);
         return vet;
     }
+    
+    
 
     @Override
     public void update(Vet vet) {

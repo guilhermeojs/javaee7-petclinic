@@ -18,5 +18,6 @@ public interface VisitDao {
     void update(Visit visit);
     
     List<Visit> getAll ();
+
    
 }

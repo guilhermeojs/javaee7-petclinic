@@ -41,4 +41,6 @@ public class VisitDaoImpl implements VisitDao {
         List<Visit> list =  q.getResultList();
         return list;
     }
+    
+
 }
